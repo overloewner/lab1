@@ -55,23 +55,9 @@ class ClusteringAnalysis:
         self.df = pd.read_csv(self.data_path)
         print(f"\n✓ Датасет загружен: {self.df.shape[0]} строк, {self.df.shape[1]} столбцов")
 
-        # Информация о датасете
-        print("\nПервые строки датасета:")
-        print(self.df.head())
-
-        print("\nИнформация о столбцах:")
-        print(self.df.info())
-
-        print("\nСтатистическое описание:")
-        print(self.df.describe())
-
         # Проверка меток
-        print("\nУникальные значения меток:")
-        print(self.df['label'].value_counts())
-
-        # Проверка пропущенных значений
-        print("\nПропущенные значения:")
-        print(self.df.isnull().sum())
+        print(f"✓ Уникальные метки: {self.df['label'].value_counts().to_dict()}")
+        print(f"✓ Пропущенные значения: {self.df.isnull().sum().sum()}")
 
         return self.df
 
@@ -97,17 +83,15 @@ class ClusteringAnalysis:
         # Выбор признаков
         X = self.df[feature_cols].values
 
-        print(f"✓ Выбрано признаков: {len(feature_cols)}")
-        print(f"✓ Размер матрицы признаков: {X.shape}")
+        print(f"✓ Признаков: {len(feature_cols)}, Размер: {X.shape}")
 
         # Стандартизация
         self.X_scaled = self.scaler.fit_transform(X)
-        print("✓ Данные стандартизированы")
 
         # PCA для визуализации
         self.X_pca = self.pca.fit_transform(self.X_scaled)
         explained_var = self.pca.explained_variance_ratio_
-        print(f"✓ PCA выполнена: объяснённая дисперсия = {explained_var[0]:.3f}, {explained_var[1]:.3f}")
+        print(f"✓ PCA: объяснённая дисперсия = {explained_var[0]:.3f}, {explained_var[1]:.3f}")
 
         return self.X_scaled, feature_cols
 
@@ -125,14 +109,13 @@ class ClusteringAnalysis:
         silhouette_scores = []
         K_range = range(2, max_clusters + 1)
 
-        print("\nВычисление метрик для разного количества кластеров...")
+        print("\n✓ Вычисление метрик...")
         for k in K_range:
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
             labels = kmeans.fit_predict(X_sample)
             inertias.append(kmeans.inertia_)
             sil_score = silhouette_score(X_sample, labels)
             silhouette_scores.append(sil_score)
-            print(f"  K={k}: Inertia={kmeans.inertia_:.2f}, Silhouette={sil_score:.3f}")
 
         # Визуализация метода локтя
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
@@ -474,10 +457,6 @@ class ClusteringAnalysis:
 
     def generate_conclusions(self, df_comparison):
         """Генерация выводов о датасете и методах кластеризации"""
-        print("\n" + "=" * 80)
-        print("ВЫВОДЫ")
-        print("=" * 80)
-
         conclusions = """
 ВЫВОДЫ О ДАТАСЕТЕ И МЕТОДАХ КЛАСТЕРИЗАЦИИ
 
@@ -545,8 +524,6 @@ class ClusteringAnalysis:
    - Оптимизация маршрутизации в SDN сетях
    - Мониторинг и прогнозирование нагрузки на сеть
 """
-
-        print(conclusions)
 
         # Сохранение выводов в файл
         with open('conclusions.txt', 'w', encoding='utf-8') as f:
