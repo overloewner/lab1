@@ -472,7 +472,10 @@ class BiometricRNNClassifier:
             confidence = y_pred_proba[0][y_pred_class] * 100
 
             # Визуализация
-            img = self.X_test[idx].reshape(self.img_height, self.img_width)
+            # Получаем актуальные размеры из данных
+            actual_height = self.X_test.shape[1]
+            actual_width = self.X_test.shape[2]
+            img = self.X_test[idx].reshape(actual_height, actual_width)
             ax.imshow(img, cmap='gray')
             ax.axis('off')
 
