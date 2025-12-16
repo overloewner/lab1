@@ -61,6 +61,49 @@ class ClusteringAnalysis:
 
         return self.df
 
+    def additional_data_processing(self):
+        """Дополнительная обработка данных (шаг между загрузкой и предобработкой)"""
+        print("\n" + "=" * 80)
+        print("ДОПОЛНИТЕЛЬНАЯ ОБРАБОТКА ДАННЫХ")
+        print("=" * 80)
+
+        initial_rows = len(self.df)
+
+        # 1. Удаление дубликатов
+        self.df = self.df.drop_duplicates()
+        print(f"\n✓ Удалено дубликатов: {initial_rows - len(self.df)}")
+
+        # 2. Фильтрация выбросов по числовым признакам
+        numeric_cols = self.df.select_dtypes(include=[np.number]).columns.tolist()
+        exclude_cols = ['label']
+        feature_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        # Удаление строк с экстремальными выбросами (за пределами 3 стандартных отклонений)
+        rows_before = len(self.df)
+        for col in feature_cols[:5]:  # Проверяем только первые 5 признаков для ускорения
+            if col in self.df.columns:
+                mean_val = self.df[col].mean()
+                std_val = self.df[col].std()
+                if std_val > 0:
+                    self.df = self.df[
+                        (self.df[col] >= mean_val - 3 * std_val) &
+                        (self.df[col] <= mean_val + 3 * std_val)
+                    ]
+
+        outliers_removed = rows_before - len(self.df)
+        print(f"✓ Удалено выбросов: {outliers_removed}")
+
+        # 3. Отбор наиболее информативных признаков
+        # Удаляем признаки с нулевой дисперсией
+        for col in feature_cols:
+            if col in self.df.columns and self.df[col].std() == 0:
+                self.df = self.df.drop(columns=[col])
+                print(f"✓ Удален признак с нулевой дисперсией: {col}")
+
+        print(f"\n✓ Итоговый размер датасета: {self.df.shape[0]} строк, {self.df.shape[1]} столбцов")
+
+        return self.df
+
     def preprocess_data(self):
         """Предобработка данных"""
         print("\n" + "=" * 80)
@@ -547,15 +590,20 @@ def main():
     # 1. Загрузка и исследование данных
     analyzer.load_and_explore_data()
 
+    # 1.5. Дополнительная обработка данных (между шагами 1 и 2)
+    analyzer.additional_data_processing()
+
     # 2. Предобработка данных
     X_scaled, feature_cols = analyzer.preprocess_data()
 
     # 3. Определение оптимального количества кластеров
     optimal_k = analyzer.determine_optimal_clusters(max_clusters=8)
 
-    # Используем рекомендуемое количество кластеров
-    n_clusters = optimal_k
+    # Используем 2 кластера для бинарной классификации
+    n_clusters = 2
     distance_metrics = ['euclidean', 'manhattan', 'chebyshev']
+
+    print(f"\n✓ Установлено количество кластеров: {n_clusters} (бинарная классификация)")
 
     # 4. Применение методов кластеризации
     all_results = {}
