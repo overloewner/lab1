@@ -71,6 +71,6 @@
                   Метод  Silhouette  Davies-Bouldin  Calinski-Harabasz      AUC
                  kmeans    0.162480        2.069212       17767.249543 0.276469
                kmeans++    0.162500        2.068294       17767.277587 0.723662
-agglomerative_euclidean    0.797352        0.304961         264.336051 0.501183
-agglomerative_manhattan    0.808380        0.297794         297.482351 0.499225
-agglomerative_chebyshev    0.789080        0.273573         163.247624 0.501079
+agglomerative_euclidean    0.759566        0.491391         206.435120 0.498523
+agglomerative_manhattan    0.777516        0.448110         319.795034 0.498888
+agglomerative_chebyshev    0.783138        0.384660         305.716173 0.501311
